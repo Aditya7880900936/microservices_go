@@ -53,17 +53,21 @@ func (r *postgresRepository) GetAccountByID(ctx context.Context, id string) (*Ac
 }
 
 func (r *postgresRepository) ListAccounts(ctx context.Context, skip uint64, take uint64) ([]Account, error) {
-	var accounts []Account
-	rows, err := r.db.QueryContext(ctx, "SELECT id, name FROM accounts LIMIT $1 OFFSET $2", take, skip)
+	rows , err := r.db.QueryContext(ctx, "SELECT id, name FROM accounts ORDER BY id DESC OFFSET $1 LIMIT $2",  skip, take)
 	if err!= nil {
 		return nil, err
 	}
 	defer rows.Close()
+	account := []Account{}
 	for rows.Next() {
 		var a Account
-		err := rows.Scan(&a.ID, &a.Name)
-		if err!= nil {
+		if err:= rows.Scan(&a.ID, &a.Name); err!= nil {
 			return nil, err
 		}
+		account = append(account, a)
 	}
+	if err:= rows.Err(); err!= nil {
+		return nil, err
+	}
+	return account, nil
 }
