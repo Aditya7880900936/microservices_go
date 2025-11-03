@@ -6,6 +6,7 @@ import (
 
 	"github.com/Aditya7880900936/microservices_go/account"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/tinrab/retry"
 	"golang.org/x/tools/go/cfg"
 )
 
