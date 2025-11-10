@@ -7,7 +7,6 @@ import (
 	"github.com/Aditya7880900936/microservices_go/account"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/tinrab/retry"
-	"golang.org/x/tools/go/cfg"
 )
 
 type Config struct {
@@ -23,14 +22,16 @@ func main() {
 
 	var r account.Repository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		e , err := account.NewPostgresRepository(cfg.DatabaseURL)
+		e, err := account.NewPostgresRepository(config.DatabaseURL) // ✅ fixed here
 		if err != nil {
 			log.Println(err)
+			return err
 		}
 		r = e
-		return
+		return nil
 	})
 	defer r.Close()
+
 	log.Println("Listening on port 8080...")
 	s := account.NewService(r)
 	log.Fatal(account.ListenGRPC(s, 8080))
