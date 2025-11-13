@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package pb;
 
+option go_package = "./pb;pb";
+
 message Product {
     string id = 1;
     string name = 2;
