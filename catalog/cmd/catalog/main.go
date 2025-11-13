@@ -20,11 +20,11 @@ func main() {
 		log.Fatalf("failed to process env var: %s", err)
 	}
 
-	var r.catalog.Repository
+	var r catalog.Repository // ✅ correct declaration
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		r , err := catalog.NewElasticRepository(cfg.DatabaseURL)
-		if err!= nil {
+		r, err = catalog.NewElasticRepository(cfg.DatabaseURL)
+		if err != nil {
 			log.Printf("failed to connect to elasticsearch: %s", err)
 			return err
 		}
@@ -34,10 +34,9 @@ func main() {
 
 	log.Println("Listening on port 8080...")
 
-	s:= catalog.NewService(r)
+	s := catalog.NewService(r)
 	err = catalog.ListenGRPC(s, 8080)
-	if err!= nil {
+	if err != nil {
 		log.Fatalf("failed to listen gRPC server: %s", err)
-	}	
-	
+	}
 }
