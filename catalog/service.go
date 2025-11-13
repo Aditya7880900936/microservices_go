@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	PostProduct(ctx context.Context, name string, description string, price string) (*Product, error)
+	PostProduct(ctx context.Context, name string, description string, price float64) (*Product, error)
 	GetProduct(ctx context.Context, id string) (*Product, error)
 	GetProducts(ctx context.Context, skip uint64, take uint64) ([]Product, error)
 	GetProductsByIDs(ctx context.Context, ids []string) ([]Product, error)

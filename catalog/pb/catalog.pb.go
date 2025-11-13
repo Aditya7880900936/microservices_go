@@ -93,7 +93,7 @@ type PostProductRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	Price         string                 `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
+	Price         float64                 `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,11 +142,11 @@ func (x *PostProductRequest) GetDescription() string {
 	return ""
 }
 
-func (x *PostProductRequest) GetPrice() string {
+func (x *PostProductRequest) GetPrice() float64 {
 	if x != nil {
 		return x.Price
 	}
-	return ""
+	return 0
 }
 
 type PostProductResponse struct {

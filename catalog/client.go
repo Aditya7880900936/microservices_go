@@ -27,7 +27,7 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
-func (c *Client) PostProduct(ctx context.Context, name, description string, price string) (*Product, error) {
+func (c *Client) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
 	r, err := c.service.PostProduct(ctx, &pb.PostProductRequest{
 		Name:        name,
 		Description: description,
