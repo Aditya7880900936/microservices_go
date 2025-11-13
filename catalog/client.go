@@ -9,7 +9,7 @@ import (
 
 type Client struct {
 	conn    *grpc.ClientConn
-	service pb.catalogServiceClient
+	service pb.CatalogServiceClient
 }
 
 func NewClient(address string) (*Client, error) {
@@ -19,7 +19,7 @@ func NewClient(address string) (*Client, error) {
 	}
 	return &Client{
 		conn:    conn,
-		service: pb.NewcatalogServiceClient(conn),
+		service: pb.NewCatalogServiceClient(conn),
 	}, nil
 }
 
@@ -27,7 +27,7 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
-func (c *Client) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
+func (c *Client) PostProduct(ctx context.Context, name, description string, price string) (*Product, error) {
 	r, err := c.service.PostProduct(ctx, &pb.PostProductRequest{
 		Name:        name,
 		Description: description,
@@ -37,7 +37,7 @@ func (c *Client) PostProduct(ctx context.Context, name, description string, pric
 		return nil, err
 	}
 	return &Product{
-		ID:          r.Product.ID,
+		ID:          r.Product.Id,
 		Name:        r.Product.Name,
 		Description: r.Product.Description,
 		Price:       r.Product.Price,
@@ -46,13 +46,13 @@ func (c *Client) PostProduct(ctx context.Context, name, description string, pric
 
 func (c *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
 	r, err := c.service.GetProduct(ctx, &pb.GetProductRequest{
-		ID: id,
+		Id: id,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &Product{
-		ID:          r.Product.ID,
+		ID:          r.Product.Id,
 		Name:        r.Product.Name,
 		Description: r.Product.Description,
 		Price:       r.Product.Price,
@@ -66,16 +66,18 @@ func (c *Client) GetProducts(ctx context.Context, skip uint64, take uint64, ids 
 		Ids:   ids,
 		Query: query,
 	})
-	if err!= nil {
+	if err != nil {
 		return nil, err
 	}
-	products := []Product{}
+
+	var products []*Product
 	for _, p := range r.Products {
-		products = append(products, Product{
-			ID:          p.ID,
+		products = append(products, &Product{
+			ID:          p.Id,
 			Name:        p.Name,
 			Description: p.Description,
 			Price:       p.Price,
 		})
 	}
+	return products, nil
 }
