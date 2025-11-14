@@ -14,3 +14,20 @@ type Order struct {
 	AccountID  string           `json:"accountId"`
 	Products   []OrderedProduct `json:"products"`
 }
+
+type OrderedProduct struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Quantity    uint32  `json:"quantity"`
+}
+
+
+type orderService struct {
+	repository Repository
+}
+
+func NewService(repository Repository) service {
+	return &orderService{repository}
+}

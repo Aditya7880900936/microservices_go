@@ -71,4 +71,16 @@ func (r *postgresRepository) PutOrder(ctx context.Context, o Order) error {
 }
 
 func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {	
+	rows, err := r.db.QueryContext(ctx, 
+		`SELECT o.id, o.created_at, o.account_id, o.total_price::money::numeric::float8, op.product_id, op.quantity FROM orders o JOIN order_products op ON(o.id = op.order_id) WHERE o.account_id = $1, ORDER BY o.id`,
+		 accountID)
+	if err!= nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var orders []Order
+	lastOrder := &Order{}
+	orderedProduct := &OrderedProduct{}
+	products := []OrderedProduct{}
+
 }
