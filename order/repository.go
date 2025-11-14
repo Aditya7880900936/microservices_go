@@ -70,6 +70,5 @@ func (r *postgresRepository) PutOrder(ctx context.Context, o Order) error {
 	return nil
 }
 
-func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
-	
+func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {	
 }
