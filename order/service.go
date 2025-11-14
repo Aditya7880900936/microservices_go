@@ -1,6 +1,9 @@
 package order
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type service interface {
 	PutOrder
@@ -28,6 +31,21 @@ type orderService struct {
 	repository Repository
 }
 
-func NewService(repository Repository) service {
-	return &orderService{repository}
+func NewService(r Repository) service {
+	return &orderService{r}
 }
+
+func (s orderService) PostOrder(ctx context.Context , accountID string, products []OrderedProduct)(*Order, error) {
+	order := &Order{
+		ID:         "123",
+		CreatedAt:  time.Now(),
+		TotalPrice: 123.45,
+		AccountID:  accountID,
+		Products:   products,
+	}
+	return order, nil
+}
+
+func (s orderService) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
+	return nil, nil
+}	

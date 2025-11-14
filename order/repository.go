@@ -78,9 +78,47 @@ func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountID 
 		return nil, err
 	}
 	defer rows.Close()
-	var orders []Order
+	orders := []Order{}
 	lastOrder := &Order{}
 	orderedProduct := &OrderedProduct{}
 	products := []OrderedProduct{}
+
+	for rows.Next() {
+		err = rows.Scan(&order.ID, &order.CreatedAt, &order.AccountID, &order.TotalPrice, &orderedProduct.ID, &orderedProduct.Quantity)
+		if err!= nil {
+			return nil, err
+		}
+		if lastOrder.ID != "" && lastOrder.ID != order.ID {
+			newOrder := Order{
+				ID : lastOrder.ID,
+				AccountID: lastOrder.AccountID,
+				CreatedAt: lastOrder.CreatedAt,
+				TotalPrice: lastOrder.TotalPrice,
+				Products: lastOrder.Products,
+			}
+			orders = append(orders, newOrder)
+			products = []OrderedProduct{}
+		}
+		products = append(products, OrderedProduct{
+			ID: orderedProduct.ID,
+			Quantity: orderedProduct.Quantity,
+		})
+		*lastOrder = *order
+	}
+
+	if lastOrder != nil {
+		newOrder := Order{
+			ID : lastOrder.ID,
+			AccountID: lastOrder.AccountID,
+			CreatedAt: lastOrder.CreatedAt,
+			TotalPrice: lastOrder.TotalPrice,
+			Products: lastOrder.Products,
+		}
+		orders = append(orders, newOrder)
+	}
+	if err = rows.Err(); err!= nil {
+		return nil, err
+	}
+	return orders, nil
 
 }
