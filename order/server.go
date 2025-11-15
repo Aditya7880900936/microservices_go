@@ -15,6 +15,7 @@ import (
 )
 
 type grpcServer struct {
+	pb.UnimplementedOrderServiceServer
 	service       Service
 	accountClient *account.Client
 	catalogClient *catalog.Client
@@ -89,7 +90,7 @@ func (s *grpcServer) PostOrder(ctx context.Context, r *pb.PostOrderRequest) (*pb
 	orderProto := &pb.Order{
 		Id:        order.ID,
 		AccountId: order.AccountID,
-		Products:  []*pb.Order_OrderedProduct{},
+		Products:  []*pb.Order_OrderProduct{},
 		TotalPrice:     order.TotalPrice,
 	}
 	orderProto.CreatedAt , _ = order.CreatedAt.MarshalBinary()
@@ -134,7 +135,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, r *pb.GetOrdersFor
 		op := &pb.Order{
 			Id:        order.ID,
 			AccountId: order.AccountID,
-			Products:  []*pb.Order_OrderedProduct{},
+			Products:  []*pb.Order_OrderProduct{},
 			TotalPrice:     order.TotalPrice,
 		}
 		op.CreatedAt, _ = order.CreatedAt.MarshalBinary()
@@ -147,7 +148,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, r *pb.GetOrdersFor
 					break
 				}
 			}
-			op.Products = append(op.Products, &pb.Order_OrderedProduct{
+			op.Products = append(op.Products, &pb.Order_OrderProduct{
 				Id: product.ID,
 				Quantity: product.Quantity,
 				Price: product.Price,
