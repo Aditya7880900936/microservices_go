@@ -93,4 +93,71 @@ func (s *grpcServer) PostOrder(ctx context.Context, r *pb.PostOrderRequest) (*pb
 		TotalPrice:     order.TotalPrice,
 	}
 	orderProto.CreatedAt , _ = order.CreatedAt.MarshalBinary()
+	for _ , p := range order.Products{
+		orderProto.Products = append(orderProto.Products ,&pb.Order_OrderProduct{
+            Id : p.ID,
+			Quantity: p.Quantity,
+			Price: p.Price,
+			Name: p.Name,
+			Description: p.Description,
+		})
+	}
+	return &pb.PostOrderResponse{
+		Order: orderProto,
+	}, nil
+}
+
+
+func (s *grpcServer) GetOrdersForAccount(ctx context.Context, r *pb.GetOrdersForAccountRequest) (*pb.GetOrdersForAccountResponse, error) {
+	accountOrders, err := s.service.GetOrdersForAccount(ctx, r.AccountId)
+	if err!= nil {
+		log.Println("error getting orders for account", err)
+		return nil, errors.New("internal error")
+	}
+	productIDMap := map[string]bool{}
+	for _, order := range accountOrders {
+		for _, product := range order.Products {
+			productIDMap[product.ID] = true
+		}
+	}
+	productIDs := []string{}
+	for productID := range productIDMap {
+		productIDs = append(productIDs, productID)
+	}
+	products, err := s.catalogClient.GetProducts(ctx, 0, 0, productIDs, "")
+	if err!= nil {
+		log.Println("error getting products", err)
+		return nil, errors.New("internal error")
+	}
+	orders := []*pb.Order{}
+	for _, order := range accountOrders {
+		op := &pb.Order{
+			Id:        order.ID,
+			AccountId: order.AccountID,
+			Products:  []*pb.Order_OrderedProduct{},
+			TotalPrice:     order.TotalPrice,
+		}
+		op.CreatedAt, _ = order.CreatedAt.MarshalBinary()
+		for _, product := range order.Products {
+			for _, p := range products {
+				if p.ID == product.ID {
+					product.Name = p.Name
+					product.Description = p.Description
+					product.Price = p.Price
+					break
+				}
+			}
+			op.Products = append(op.Products, &pb.Order_OrderedProduct{
+				Id: product.ID,
+				Quantity: product.Quantity,
+				Price: product.Price,
+				Name: product.Name,
+				Description: product.Description,
+			})
+		}
+		orders = append(orders, op)
+	}
+	return &pb.GetOrdersForAccountResponse{
+		Orders: orders,
+	}, nil
 }
