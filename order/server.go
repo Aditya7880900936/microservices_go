@@ -16,7 +16,7 @@ import (
 
 type grpcServer struct {
 	pb.UnimplementedOrderServiceServer
-	service       Service
+	service       Service 
 	accountClient *account.Client
 	catalogClient *catalog.Client
 }
