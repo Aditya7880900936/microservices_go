@@ -11,43 +11,47 @@ type queryResolver struct {
 }
 
 func (r *queryResolver) Accounts(ctx context.Context, pagination *PaginationInput, id *string) ([]*Account, error) {
-	ctx , canel := context.WithTimeout(ctx, 3*time.Second)
-	defer canel()
-	if id != nil {
-		acc, err := r.server.accountClient.GetAccount(ctx , *id)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-		return []*Account{
-			{
-				ID:   acc.ID,
-				Name: acc.Name,
-			},
-		}, nil
-	}
-    skip , take := uint64(0) ,  uint64(0)
+    ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+    defer cancel()
 
-	if pagination != nil {
-		skip , take = pagination.bounds()
-	}
+    if id != nil {
+        acc, err := r.server.accountClient.GetAccount(ctx, *id)
+        if err != nil {
+            log.Println(err)
+            return nil, err
+        }
+        return []*Account{
+            {
+                ID:   acc.ID,
+                Name: acc.Name,
+            },
+        }, nil
+    }
 
-	accountList, err := r.server.accountClient.GetAccounts(ctx, skip, take)
-	if err!= nil {
-		log.Println(err)
-		return nil, err
-	}
+    skip, take := uint64(0), uint64(0)
+    if pagination != nil {
+        skip, take = pagination.bounds()
+    }
 
-    var account []*Account
-	for _, acc := range accountList{
-		accounts := &Account{
-			ID:   acc.ID,
-			Name: acc.Name,
-		}
-		account = append(accounts, account)
-	}
-	return accounts, nil
+    accountList, err := r.server.accountClient.GetAccounts(ctx, skip, take)
+    if err != nil {
+        log.Println(err)
+        return nil, err
+    }
+
+    // FIXED: create correct slice
+    var accounts []*Account
+
+    for _, acc := range accountList {
+        accounts = append(accounts, &Account{
+            ID:   acc.ID,
+            Name: acc.Name,
+        })
+    }
+
+    return accounts, nil
 }
+
 
 func (r *queryResolver) Products(ctx context.Context, pagination *PaginationInput, query *string, id *string) ([]*Product, error) {
 	ctx, canel := context.WithTimeout(ctx, 3*time.Second)
@@ -67,7 +71,7 @@ func (r *queryResolver) Products(ctx context.Context, pagination *PaginationInpu
 			}}, nil
 	}
 
-	skip, take := uint(0),  uint(0)
+	skip, take := uint64(0),  uint64(0)
 
 	if pagination!= nil {
 		skip, take = pagination.bounds()
@@ -78,19 +82,20 @@ func (r *queryResolver) Products(ctx context.Context, pagination *PaginationInpu
 		q = *query
 	}
 
-	productList, err := r.server.catalogClient.GetProducts(ctx, skip , take)
+	productList, err := r.server.catalogClient.GetProducts(ctx, skip , take , nil , q)
 	if err!= nil {
 		log.Println(err)
 		return nil, err
 	}
 	var products []*Product
 	for _, prod := range productList{
-		products := append(products , &Product{
+		products = append(products , &Product{
 			ID:   prod.ID,
 			Name: prod.Name,
 			Price: prod.Price,
 			Description: prod.Description,
-		})
+		},
+	)
 	}
 	return products, nil
 }
@@ -101,8 +106,8 @@ func (p PaginationInput) bounds() (uint64, uint64) {
 	if p.Skip != nil {
 		skipValue = uint64(*p.Skip)
 	}
-	if p.Take != nil {
-		takeValue = uint64(*p.Take)
+	if p.Limit != nil {
+		takeValue = uint64(*p.Limit)
 	}
 	return skipValue, takeValue
 }
