@@ -15,10 +15,11 @@ type Product {
 
 type Order {
   id: ID!
-  products: [Product!]!
+  products: [OrderedProduct!]!
   createdAt: Time!
   totalPrice: Float!
 }
+
 
 type OrderedProduct {
   id : ID!

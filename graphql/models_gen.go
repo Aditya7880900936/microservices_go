@@ -14,10 +14,10 @@ type Mutation struct {
 }
 
 type Order struct {
-	ID         string     `json:"id"`
-	Products   []*Product `json:"products"`
-	CreatedAt  time.Time  `json:"createdAt"`
-	TotalPrice float64    `json:"totalPrice"`
+	ID         string            `json:"id"`
+	Products   []*OrderedProduct `json:"products"`
+	CreatedAt  time.Time         `json:"createdAt"`
+	TotalPrice float64           `json:"totalPrice"`
 }
 
 type OrderInput struct {

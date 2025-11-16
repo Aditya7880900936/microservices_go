@@ -826,7 +826,7 @@ func (ec *executionContext) _Order_products(ctx context.Context, field graphql.C
 			return obj.Products, nil
 		},
 		nil,
-		ec.marshalNProduct2ᚕᚖgithubᚗcomᚋAditya7880900936ᚋmicroservices_goᚋgraphqlᚐProductᚄ,
+		ec.marshalNOrderedProduct2ᚕᚖgithubᚗcomᚋAditya7880900936ᚋmicroservices_goᚋgraphqlᚐOrderedProductᚄ,
 		true,
 		true,
 	)
@@ -841,15 +841,17 @@ func (ec *executionContext) fieldContext_Order_products(_ context.Context, field
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Product_id(ctx, field)
+				return ec.fieldContext_OrderedProduct_id(ctx, field)
 			case "name":
-				return ec.fieldContext_Product_name(ctx, field)
+				return ec.fieldContext_OrderedProduct_name(ctx, field)
 			case "price":
-				return ec.fieldContext_Product_price(ctx, field)
+				return ec.fieldContext_OrderedProduct_price(ctx, field)
+			case "quantity":
+				return ec.fieldContext_OrderedProduct_quantity(ctx, field)
 			case "description":
-				return ec.fieldContext_Product_description(ctx, field)
+				return ec.fieldContext_OrderedProduct_description(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type OrderedProduct", field.Name)
 		},
 	}
 	return fc, nil
@@ -3933,6 +3935,60 @@ func (ec *executionContext) marshalNOrder2ᚖgithubᚗcomᚋAditya7880900936ᚋm
 func (ec *executionContext) unmarshalNOrderInput2githubᚗcomᚋAditya7880900936ᚋmicroservices_goᚋgraphqlᚐOrderInput(ctx context.Context, v any) (OrderInput, error) {
 	res, err := ec.unmarshalInputOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOrderedProduct2ᚕᚖgithubᚗcomᚋAditya7880900936ᚋmicroservices_goᚋgraphqlᚐOrderedProductᚄ(ctx context.Context, sel ast.SelectionSet, v []*OrderedProduct) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNOrderedProduct2ᚖgithubᚗcomᚋAditya7880900936ᚋmicroservices_goᚋgraphqlᚐOrderedProduct(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNOrderedProduct2ᚖgithubᚗcomᚋAditya7880900936ᚋmicroservices_goᚋgraphqlᚐOrderedProduct(ctx context.Context, sel ast.SelectionSet, v *OrderedProduct) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._OrderedProduct(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNOrderedProductInput2ᚕᚖgithubᚗcomᚋAditya7880900936ᚋmicroservices_goᚋgraphqlᚐOrderedProductInputᚄ(ctx context.Context, v any) ([]*OrderedProductInput, error) {
